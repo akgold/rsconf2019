@@ -27,16 +27,70 @@ knitr::opts_chunk$set(echo = FALSE)
 
 
 ## excitement >> skills
-Relative importance of R skills vs Technical Skills at Start
-Interest in Learning
-Persistence of Team Lead
+```{r}
+levs <- c("Team Leader's Persistence", 
+          "Team's excitement about using R", 
+          "Actual Level of R Knowledge")
+
+tibble(x = 1:3, 
+       pe = c(0.25, 0.75, 0.1),
+       ymin = c(0.05, 0.6, -0.3), 
+       ymax = c(0.4, 1, 0.3),
+       labs = factor(levs, 
+                     levels = levs %>% rev(),
+                     labels = stringr::str_wrap(levs, 15),
+                     ordered = TRUE)) %>%
+  ggplot(aes(x = labs, y = pe)) +
+  geom_point(size = 4) +
+  geom_errorbar(aes(ymin = ymin, ymax = ymax)) +
+  theme_rs() +
+  theme(axis.text.y = element_text(), 
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank()) +
+  geom_hline(yintercept = 0, linetype = 2, color = "lightgrey") +
+  ylab("Estimated Effect on Initial Productivity in R") +
+  coord_flip()
+```
 
 ## be ready to fail
-Actual Productivity
-Manager's Perceived Productivity
-Team's Buy In 
 
-Bug leads to error in deliverable, team lead insists whole team pushes to git EVERY DAY
+Consider changing to be moving bubble plot over time w/ bubbles being team 
+members w/ individual morale and productivities
+```{r}
+labs1 <- c("First Project Launched in R", 
+           "Project Run in R End-to-End", 
+           "Minor Setback due to Miscommunication/Coding Error", 
+           "Major Overreaction by Team Lead*", 
+           "Weeks Spent Smoothing Over", 
+           "", 
+           "", 
+           "") %>%
+  stringr::str_wrap(20)
+facets1 <- c("Actual Productivity", 
+             "Team Lead's Perception of Productivity", 
+             "Team Morale") %>%
+  stringr::str_wrap(20)
+
+pd <- tibble(labs = rep(labs1, length(facets1)), 
+             facets = rep(facets1, each = length(labs1)), 
+             x = rep(seq(length(labs1)), length(facets1)), 
+             y = c(0.25, 0.75, 0.65, 0.10, 0.20, 0.25, 0.40, 0.60, 
+                   0.65, 0.75, -.25, 0.50, 0.10, 0.15, 0.20, 0.30, 
+                   0.75, 0.95, 0.50, -.25, 0.10, 0.15, 0.20, 0.40)) 
+pd2 <- pd %>%
+  rename(facets2 = facets)
+
+pd %>%
+ggplot(aes(x = x)) +
+  geom_line(data = pd2, aes(y = y, group = facets2), color = "lightgrey") +
+  geom_line(aes(y = y, group = facets), color = "grey2", size = 1.1) +
+  theme_rs() +
+  facet_grid("facets~.") +
+  geom_label(aes(y=y, label = labs)) +
+  ggtitle("", subtitle = "*Everyone needs to make a merge request to git with their progress every day.")
+```
+
 
 ## meet your data where it lives
 ```{r}
