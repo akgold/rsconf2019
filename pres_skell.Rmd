@@ -120,6 +120,18 @@ Getting everyone on the team to contribute
 Clever use of capital R in package name
 
 ## {{tips["git"]}}
+Maybe relative performance of git and markdown, git is so useful but will make you cry, markdown is just good and gets better
+
+```{r}
+tibble(labs = rep(c("This is so useful!", 
+                    "Oh no, I broke everything :O"), 
+                  each = 10), 
+       x = 1:20, 
+       y = c(7, 8, 8, 7, )) +
+  ggtitle("Feelings While Adopting git")
+```
+
+
 
 How often talk about how everything is broken and unfixable forever
 
