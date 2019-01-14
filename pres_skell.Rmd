@@ -14,24 +14,24 @@ source(here::here("helper_funcs.R"))
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-# 8 Tips for Upgrading to R
+## 8 Tips for Upgrading to R
 
 {{sprintf("%s. %s", 1:8, tips) %>% paste(collapse = "\n")}}
 
 
-# {{tips["skills"]}}
+## {{tips["skills"]}}
 Relative importance of R skills vs Technical Skills at Start
 Interest in Learning
 Persistence of Team Lead
 
-# {{tips["fail"]}}
+## {{tips["fail"]}}
 Actual Productivity
 Manager's Perceived Productivity
 Team's Buy In 
 
 Bug leads to error in deliverable, team lead insists whole team pushes to git EVERY DAY
 
-# {{tips["csvs"]}}
+## {{tips["csvs"]}}
 ```{r}
 make_bar_dat(c(0, 0.01, 0.8), 
              c("Died from building an ETL pipeline out of CSV files", 
@@ -40,7 +40,7 @@ make_bar_dat(c(0, 0.01, 0.8),
   bar_plot("Proportion of People")
 ```
 
-# {{tips["package"]}}
+## {{tips["package"]}}
 
 Things to include:
 
@@ -59,15 +59,15 @@ Making sure people know why you care
 Getting everyone on the team to contribute
 Clever use of capital R in package name
 
-# {{tips["git"]}}
+## {{tips["git"]}}
 
 
 How useful git is
 How much longer it takes to learn than you want
 Useful git help that starts with "well, if you just think of git as a..."
 
-# {{tips["markdown"]}}
+## {{tips["markdown"]}}
 
-# {{tips["invisible"]}}
+## {{tips["invisible"]}}
 
-# {{tips["tf"]}}
+## {{tips["tf"]}}
