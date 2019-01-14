@@ -1,0 +1,73 @@
+---
+title: "8 Tips for Upgrading to R"
+author: "Alex Gold"
+date: "1/10/2019"
+output: 
+  revealjs::revealjs_presentation:
+    theme: league
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(gganimate)
+source(here::here("helper_funcs.R"))
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# 8 Tips for Upgrading to R
+
+{{sprintf("%s. %s", 1:8, tips) %>% paste(collapse = "\n")}}
+
+
+# {{tips["skills"]}}
+Relative importance of R skills vs Technical Skills at Start
+Interest in Learning
+Persistence of Team Lead
+
+# {{tips["fail"]}}
+Actual Productivity
+Manager's Perceived Productivity
+Team's Buy In 
+
+Bug leads to error in deliverable, team lead insists whole team pushes to git EVERY DAY
+
+# {{tips["csvs"]}}
+```{r}
+make_bar_dat(c(0, 0.01, 0.8), 
+             c("Died from building an ETL pipeline out of CSV files", 
+               "Are excited to give you money for infrastructure", 
+               "Will notice if errors diminsh and velocity increases")) %>%
+  bar_plot("Proportion of People")
+```
+
+# {{tips["package"]}}
+
+Things to include:
+
+* wrappers around functions with diagnostics
+* commonly used data
+* standard plots
+* functions to write out spreadsheets
+* special analytical functions
+* Templates for use patterns (preprocessing, analysis)
+* New project setup packages
+
+Variable importance plot for Effect on use of package
+
+Writing a vignette
+Making sure people know why you care
+Getting everyone on the team to contribute
+Clever use of capital R in package name
+
+# {{tips["git"]}}
+
+
+How useful git is
+How much longer it takes to learn than you want
+Useful git help that starts with "well, if you just think of git as a..."
+
+# {{tips["markdown"]}}
+
+# {{tips["invisible"]}}
+
+# {{tips["tf"]}}

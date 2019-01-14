@@ -1,0 +1,40 @@
+---
+title: "8 Tips for Upgrading to R"
+author: "Alex Gold"
+date: "1/10/2019"
+output: 
+  revealjs::revealjs_presentation:
+    theme: league
+    transition: fade
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(gganimate)
+source(here::here("helper_funcs.R"))
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+# In the morning
+
+## Getting up
+
+{{sprintf("%s. %s", 1:8, tips) %>% paste(collapse = "\n")}}
+
+## Breakfast
+
+- Eat eggs
+- Drink coffee
+
+# In the evening
+
+## Dinner
+
+- Eat spaghetti
+- Drink wine
+
+## Going to sleep
+
+- Get in bed
+- Count sheep
