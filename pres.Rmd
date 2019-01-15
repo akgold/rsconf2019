@@ -1,10 +1,13 @@
 ---
-title: "8 Tips for Upgrading to R"
+title: "Upgrading to R: Tips, Tricks, and Mistakes You Don't Have to Make"
 author: "Alex Gold"
-date: "1/10/2019"
+date: "Jan 16, 2019"
 output: 
   revealjs::revealjs_presentation:
     theme: league
+    css: styles.css
+    includes:
+        in_header: footer.html
 ---
 
 ```{r setup, include=FALSE}
@@ -12,6 +15,7 @@ library(tidyverse)
 library(gganimate)
 source(here::here("helper_funcs.R"))
 knitr::opts_chunk$set(echo = FALSE)
+options(gganimate.nframes = 200)
 ```
 
 ## 8 Tips for Upgrading to R
@@ -21,10 +25,8 @@ knitr::opts_chunk$set(echo = FALSE)
 3. meet your data where it lives
 4. write youR own package
 5. git is your (very fickle) friend
-6. Rmarkdown is your best friend
-7. start invisibly
-8. don't start with TensorFlow
-
+6. start invisibly
+7. don't start with TensorFlow
 
 ## excitement >> skills
 ```{r}
@@ -36,61 +38,69 @@ tibble(x = 1:3,
        pe = c(0.25, 0.75, 0.1),
        ymin = c(0.05, 0.6, -0.3), 
        ymax = c(0.4, 1, 0.3),
-       labs = factor(levs, 
-                     levels = levs %>% rev(),
-                     labels = stringr::str_wrap(levs, 15),
-                     ordered = TRUE)) %>%
-  ggplot(aes(x = labs, y = pe)) +
+       lab_y = c(0.75, 0.25, 0.75),
+       labs = levs %>% stringr::str_wrap(15)) %>%
+  extend_end_state() %>%
+  ggplot(aes(x = -x, y = pe, group = labs)) +
   geom_point(size = 4) +
   geom_errorbar(aes(ymin = ymin, ymax = ymax)) +
+  geom_text(aes(y = lab_y, label = labs), family = text_fam) +
   theme_rs() +
-  theme(axis.text.y = element_text(), 
-        axis.title.y = element_blank(),
-        axis.text.x = element_blank(), 
-        axis.ticks.x = element_blank()) +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank()) +
   geom_hline(yintercept = 0, linetype = 2, color = "lightgrey") +
-  ylab("Estimated Effect on Initial Productivity in R") +
-  coord_flip()
+  ylab("Effect on Initial Productivity in R") +
+  coord_flip() +
+  transition_reveal(time) +
+  enter_fade() +
+  ease_aes('sine-in-out')
 ```
 
 ## be ready to fail
 
-Consider changing to be moving bubble plot over time w/ bubbles being team 
-members w/ individual morale and productivities
 ```{r}
-labs1 <- c("First Project Launched in R", 
-           "Project Run in R End-to-End", 
-           "Minor Setback due to Miscommunication/Coding Error", 
-           "Major Overreaction by Team Lead*", 
-           "Weeks Spent Smoothing Over", 
-           "", 
-           "", 
-           "") %>%
-  stringr::str_wrap(20)
-facets1 <- c("Actual Productivity", 
-             "Team Lead's Perception of Productivity", 
-             "Team Morale") %>%
-  stringr::str_wrap(20)
+morale <- c(4, 5, 3, -2, 0, 1, 2, 3, 4, 5)
+prod <- c(2, 4, 4, -2, 0, 1, 2, 3, 4, 5)
+n <- 7
 
-pd <- tibble(labs = rep(labs1, length(facets1)), 
-             facets = rep(facets1, each = length(labs1)), 
-             x = rep(seq(length(labs1)), length(facets1)), 
-             y = c(0.25, 0.75, 0.65, 0.10, 0.20, 0.25, 0.40, 0.60, 
-                   0.65, 0.75, -.25, 0.50, 0.10, 0.15, 0.20, 0.30, 
-                   0.75, 0.95, 0.50, -.25, 0.10, 0.15, 0.20, 0.40)) 
-pd2 <- pd %>%
-  rename(facets2 = facets)
+labs <- c("Launch First Project in R!", 
+          "Run Project End-to-End in R", 
+          "Minor Setback due to Miscommunication/Coding Error", 
+          "Major Overreaction by Team Lead*", 
+          "Weeks Spent Smoothing Over", 
+          "Weeks Spent Smoothing Over ", 
+          "Weeks Spent Smoothing Over  ", 
+          "Weeks Spent Smoothing Over   ", 
+          "Weeks Spent Smoothing Over    ", 
+          "Weeks Spent Smoothing Over     ") 
 
-pd %>%
-ggplot(aes(x = x)) +
-  geom_line(data = pd2, aes(y = y, group = facets2), color = "lightgrey") +
-  geom_line(aes(y = y, group = facets), color = "grey2", size = 1.1) +
+tibble(person = rep(seq(n), each = length(morale)), 
+       time = rep(seq(length(morale)), n_distinct(person)), 
+       morale = morale + runif(n * length(morale)), 
+       prod = prod + runif(length(morale)), 
+       labs = labs[time]) %>%
+  group_by(person) %>%
+  mutate(time = row_number()) %>%
+  ggplot() +
+  geom_point(aes(x = morale, y = prod, color = factor(person)), 
+             size = 5, 
+             alpha = 0.8) + 
+  ggtitle("{closest_state}") +
   theme_rs() +
-  facet_grid("facets~.") +
-  geom_label(aes(y=y, label = labs)) +
-  ggtitle("", subtitle = "*Everyone needs to make a merge request to git with their progress every day.")
+  xlab("Morale") +
+  ylab("Productivity") +
+  guides(color = FALSE) +
+  # Here comes the gganimate code
+  transition_states(
+    labs,
+    transition_length = 10,
+    state_length = 1
+  ) +
+  enter_fade() +
+  exit_shrink() +
+  ease_aes('sine-in-out')
 ```
-
 
 ## meet your data where it lives
 ```{r}
@@ -98,10 +108,20 @@ make_bar_dat(c(0, 0.01, 0.8),
              c("Died from building an ETL pipeline out of CSV files", 
                "Are excited to give you money for infrastructure", 
                "Will notice if errors diminsh and velocity increases")) %>%
-  bar_plot("Proportion of People")
+  extend_end_state() %>%
+  bar_plot("Proportion of People") +
+  transition_reveal(time) +
+  enter_fade() +
+  ease_aes('cubic-in-out')
 ```
 
 ## write youR own package
+
+```{r}
+labs <- c("")
+```
+
+
 
 Things to include:
 
@@ -121,14 +141,55 @@ Getting everyone on the team to contribute
 Clever use of capital R in package name
 
 ## git is your (very fickle) friend
+Add something back about RMarkdown
+```{r}
+c(.15, .3, .45, .6, .65, .7, .75, .75, .75, .75)
+rep(0.1, 10)
 
+pd <- tibble(wf = c(-0.2, -0.15, -0.1, 0, 0.05, -0.4, 0.2, 0.4, 0.6, 0.75), 
+             cry = c(0.4, 0.3, 0.3, 0.2, 0.6, 0.5, 0.3, 0.3, 0.2, 0.15),
+             time = seq(10), 
+             titles = c("Starting", 
+                            "Reading", 
+                            "Some New Stuff!", 
+                            "Learn about git reset --hard",
+                            "Uh Oh.", 
+                            "Oh No.", 
+                            "IT'S ALL GONE!!!", 
+                            "Oh, there it is!", 
+                            "Phew.", 
+                            "Now what?")) %>%
+  gather(key = series, value = value, wf, cry)
 
-How useful git is
-How much longer it takes to learn than you want
-Useful git help that starts with "well, if you just think of git as a..."
-
-## Rmarkdown is your best friend
+pd %>%
+  mutate(series = case_when(series == "wf" ~ "Being Helpful", 
+                            series == "cry" ~ "Crying")) %>%
+  ggplot(aes(y = value, x = time, group = series)) +
+  geom_point(size = 1.5) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 2, color = "lightgrey") +
+  theme_rs() +
+  scale_y_continuous(labels = scales::percent) +
+  geom_segment(aes(xend = max(pd$time) + 2, yend = value), 
+               linetype = 2, colour = 'grey') +
+  geom_text(aes(x = max(pd$time) + 2, y = value, label = series), 
+            family = text_fam) +
+  theme(axis.ticks.x = element_blank(), 
+        axis.text.x = element_blank()) +
+  xlab("Time") +
+  ylab("Likelihood") +
+  ggtitle("{pd$titles[as.integer(frame_along)]}") +
+  transition_reveal(time) 
+```
 
 ## start invisibly
 
-## don't start with TensorFlow
+Usefulness of Projects in First Year
+
+replacements for data processing pipeline
+crazy package that uses R to run command in another language
+
+Anything that uses tensorflow
+
+
+

@@ -1,0 +1,10 @@
+/* Style/position the footer text */
+#header-footer .slide-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  text-align: right;
+  font-size: 65%;
+}

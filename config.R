@@ -8,7 +8,6 @@ tips <- c(
   csvs = "meet your data where it lives",
   package = "write youR own package",
   git = "git is your (very fickle) friend",
-  markdown = "Rmarkdown is your best friend",
   invisible = "start invisibly",
   tf = "don't start with TensorFlow"
 )
@@ -16,4 +15,4 @@ tips <- c(
 knitr::knit_expand(file = here::here("pres_skell.Rmd"), tips = tips) %>%
   writeLines(here::here("pres.Rmd"))
 
-rmarkdown::render(here::here("pres.Rmd"))
+rmarkdown::render(here::here("pres.Rmd"), output_file = "index.html")

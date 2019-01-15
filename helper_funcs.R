@@ -1,9 +1,9 @@
 # Helper Functions
 bar_plot <- function(df, ylab) {
   df %>%
-    ggplot(aes(x = x, y = dat)) +
+    ggplot(aes(x = x, y = dat, group = x)) +
     geom_bar(stat = "identity") +
-    geom_label(aes(label = lab, y = 0.5), family = "Cabin-Regular") +
+    geom_label(aes(label = lab, y = 0.5), family = text_fam) +
     scale_y_continuous(labels = scales::percent) +
     ylab(ylab) +
     theme_rs() +
@@ -14,7 +14,7 @@ bar_plot <- function(df, ylab) {
 
 theme_rs <- function() {
     ggthemes::theme_few() +
-    theme(text = element_text(family = "Cabin-Regular"))
+    theme(text = element_text(family = text_fam))
 }
 
 make_bar_dat <- function(y, labs) {
@@ -24,6 +24,14 @@ make_bar_dat <- function(y, labs) {
            stringr::str_wrap(20))
 }
 
+text_fam <- "Cabin-Regular"
+
+extend_end_state <- function(df, n = 5, dur_var = dur, ...) {
+  df %>%
+    mutate(dur = c(rep(1, nrow(df) - 1), n)) %>%
+    uncount(dur) %>%
+    mutate(time = row_number())
+}
 
 # ggplot(mtcars, aes(factor(cyl), mpg)) +
 #   geom_boxplot() +
