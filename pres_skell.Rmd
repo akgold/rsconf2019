@@ -4,10 +4,16 @@ author: "Alex Gold"
 date: "Jan 16, 2019"
 output: 
   revealjs::revealjs_presentation:
-    theme: league
+    theme: solarized
     css: styles.css
     includes:
         in_header: footer.html
+    reveal_options:
+        controls: false
+        progress: false
+        slidenumber: false
+        loop: true
+        autoSlide: 40000
 ---
 
 ```{r setup, include=FALSE}
@@ -15,79 +21,86 @@ library(tidyverse)
 library(gganimate)
 source(here::here("helper_funcs.R"))
 knitr::opts_chunk$set(echo = FALSE)
-options(gganimate.nframes = 200)
+options(gganimate.nframes = 200, 
+        gganimate.end_pause = 30)
 ```
 
-## 8 Tips for Upgrading to R
+## Upgrading to R
 
 {{sprintf("%s. %s", seq(length(tips)), tips) %>% paste(collapse = "\n")}}
 
-## {{tips["skills"]}}
-```{r}
-levs <- c("Team Leader's Persistence", 
-          "Team's excitement about using R", 
-          "Actual Level of R Knowledge")
+add footer
 
-tibble(x = 1:3, 
-       pe = c(0.25, 0.75, 0.1),
-       ymin = c(0.05, 0.6, -0.3), 
-       ymax = c(0.4, 1, 0.3),
-       lab_y = c(0.75, 0.25, 0.75),
-       labs = levs %>% stringr::str_wrap(15)) %>%
-  extend_end_state() %>%
-  ggplot(aes(x = -x, y = pe, group = labs)) +
-  geom_point(size = 4) +
-  geom_errorbar(aes(ymin = ymin, ymax = ymax)) +
-  geom_text(aes(y = lab_y, label = labs), family = text_fam) +
+## {{tips["skills"]}}
+```{r, messge = FALSE, warning =FALSE}
+labs <- c("Tidyverse-First Orientation",
+          "Team Leader's Persistence",
+          "Positive Learning Environment", 
+          "Team's Enthusiasm for R",
+          "Starting Level of R Knowledge") %>% 
+  stringr::str_wrap(20)
+
+tibble(x = seq(length(labs)), 
+       pe = c(0.2, 0.33, 0.4, 0.7, 0.1),
+       ymin = c(0.1, 0.15, 0.2, 0.4, -0.2), 
+       ymax = c(0.4, 0.4, 0.48, 0.9, 0.2),
+       lab_y = c(0.8, 0.8, 0.8, 0.2, 0.8),
+       lab = labs, 
+       time = x) %>%
+  ggplot(aes(x = -x, y = pe, group = lab)) +
+  geom_pointrange(aes(ymin = ymin, ymax = ymax)) +
+  geom_text(aes(y = lab_y, label = lab), family = text_fam) +
   theme_rs() +
   theme(axis.title.y = element_blank(),
         axis.text.y = element_blank(), 
         axis.ticks.y = element_blank()) +
   geom_hline(yintercept = 0, linetype = 2, color = "lightgrey") +
-  ylab("Effect on Initial Productivity in R") +
+  ylab("Effect on Team's Productivity in R") +
   coord_flip() +
   transition_reveal(time) +
   enter_fade() +
-  ease_aes('sine-in-out')
+  ease_aes('cubic-in-out')
 ```
 
 ## {{tips["fail"]}}
-
-```{r}
-morale <- c(4, 5, 3, -2, 0, 1, 2, 3, 4, 5)
-prod <- c(2, 4, 4, -2, 0, 1, 2, 3, 4, 5)
+```{r, messge = FALSE, warning =FALSE}
+options(gganimate.nframes = 400, 
+        gganimate.end_pause = 20)
+morale <- c(1, 1.2, 3, 2.7, 2.5, 1, 0, -2, -2, -1.5, -0.5, 0.5)
+prod <- c(2, 0, 2, 3, 3, 2, 1, 0, 0.5, 1, 1.5, 2)
 n <- 7
 
-labs <- c("Launch First Project in R!", 
-          "Run Project End-to-End in R", 
-          "Minor Setback due to Miscommunication/Coding Error", 
-          "Major Overreaction by Team Lead*", 
-          "Weeks Spent Smoothing Over", 
-          "Weeks Spent Smoothing Over ", 
-          "Weeks Spent Smoothing Over  ", 
-          "Weeks Spent Smoothing Over   ", 
-          "Weeks Spent Smoothing Over    ", 
-          "Weeks Spent Smoothing Over     ") 
+labs <- c("You mean EVERYTHING is done in Excel?", 
+          "Ok, let's start adopting R.",
+          "We ran out first project totally in R!!",
+          "Yes, please do push all your code up to git.",
+          "But please, share your code on git so it can be reviewed.",
+          "So, there was a mistake in that last report?", 
+          "Ok, well I have to rewrite this code!", 
+          "Everyone makes merge requests EVERY DAY from now on.", 
+          "No, it's necessary.", 
+          "Ok, maybe I overreacted a little.", 
+          "...or maybe a lot...", 
+          "Let's figure out a way forward as a team.") 
 
 tibble(person = rep(seq(n), each = length(morale)), 
-       time = rep(seq(length(morale)), n_distinct(person)), 
        morale = morale + runif(n * length(morale)), 
-       prod = prod + runif(length(morale)), 
-       labs = labs[time]) %>%
-  group_by(person) %>%
-  mutate(time = row_number()) %>%
+       prod = prod + runif(length(morale)) , 
+       lab = rep(labs, n)) %>%
+  mutate(lab = factor(lab, levels = labs, ordered = TRUE)) %>%
   ggplot() +
-  geom_point(aes(x = morale, y = prod, color = factor(person)), 
+  geom_point(aes(y = morale, x = prod, color = factor(person)), 
              size = 5, 
              alpha = 0.8) + 
+  geom_hline(yintercept = 0, linetype = 2, color = "lightgrey") +
   ggtitle("{closest_state}") +
   theme_rs() +
-  xlab("Morale") +
-  ylab("Productivity") +
+  ylab("Good Feelings About Work") +
+  xlab("Story Points Per Day") +
   guides(color = FALSE) +
-  # Here comes the gganimate code
+  ggthemes::scale_color_solarized() +
   transition_states(
-    labs,
+    lab,
     transition_length = 10,
     state_length = 1
   ) +
@@ -97,67 +110,90 @@ tibble(person = rep(seq(n), each = length(morale)),
 ```
 
 ## {{tips["csvs"]}}
-```{r}
-make_bar_dat(c(0, 0.01, 0.8), 
-             c("Died from building an ETL pipeline out of CSV files", 
-               "Are excited to give you money for infrastructure", 
-               "Will notice if errors diminsh and velocity increases")) %>%
-  extend_end_state() %>%
-  bar_plot("Proportion of People") +
-  transition_reveal(time) +
+```{r, messge = FALSE, warning =FALSE}
+options(gganimate.nframes = 200, 
+        gganimate.end_pause = 30)
+labs <- c("Report data cleaning as favorite part of job",
+          "Fully appreciate reproducible data pipelines",
+          "Wish someone else would build their data pipeline",
+          "Would benefit if input data were cleaner",
+          "Died from building an ETL pipeline out of CSVs")
+make_bar_dat(c(0.2, 0.5, 0.5, 0.9, 0.0), 
+             labs, 
+             laby = c(0.3, 0.4, 0.6, 0.8, 0.15)) %>%
+  bar_plot("Proportion of Data Scientists who...") +
+  transition_reveal(x) +
   enter_fade() +
   ease_aes('cubic-in-out')
 ```
 
 ## {{tips["package"]}}
+```{r, messge = FALSE, warning =FALSE}
+options(gganimate.nframes = 400, 
+        gganimate.end_pause = 20)
+labs <- c("wrappers around functions with diagnostics", 
+          "commonly used data", 
+          "standard plots", 
+          "functions to write out spreadsheets", 
+          "special analytical functions",
+          "Templates for use patterns", 
+          "a vignette", 
+          "contributions from all team members", 
+          "clever use of capital R in package name") %>%
+  stringr::str_wrap(15)
 
-```{r}
-labs <- c("")
-```
-
-
-
-Things to include:
-
-* wrappers around functions with diagnostics
-* commonly used data
-* standard plots
-* functions to write out spreadsheets
-* special analytical functions
-* Templates for use patterns (preprocessing, analysis)
-* New project setup packages
-
-Variable importance plot for Effect on use of package
-
-Writing a vignette
-Making sure people know why you care
-Getting everyone on the team to contribute
-Clever use of capital R in package name
-
-## {{tips["git"]}}
-Add something back about RMarkdown
-```{r}
-c(.15, .3, .45, .6, .65, .7, .75, .75, .75, .75)
-rep(0.1, 10)
-
-pd <- tibble(wf = c(-0.2, -0.15, -0.1, 0, 0.05, -0.4, 0.2, 0.4, 0.6, 0.75), 
-             cry = c(0.4, 0.3, 0.3, 0.2, 0.6, 0.5, 0.3, 0.3, 0.2, 0.15),
-             time = seq(10), 
-             titles = c("Starting", 
-                            "Reading", 
-                            "Some New Stuff!", 
-                            "Learn about git reset --hard",
-                            "Uh Oh.", 
-                            "Oh No.", 
-                            "IT'S ALL GONE!!!", 
-                            "Oh, there it is!", 
-                            "Phew.", 
-                            "Now what?")) %>%
-  gather(key = series, value = value, wf, cry)
+pd <- tibble(labs = labs, 
+             x = seq(length(labs)), 
+             p = c(0.05, 0.1, 0.12, 0.15, 0.2, 0.22, 0.34, 0.65, 0.96)) %>%
+  extend_end_state()
 
 pd %>%
-  mutate(series = case_when(series == "wf" ~ "Being Helpful", 
-                            series == "cry" ~ "Crying")) %>%
+  ggplot(aes(x = x)) +
+  geom_area(aes(y = p)) +
+  ggrepel::geom_label_repel(aes(label = labs, y = p + 0.05), 
+                            family = text_fam, size = 4) +
+  theme_rs() +
+  ylab("Proportion of Projects Using") +
+  ggtitle("What to add to youR package:") +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_blank()) +
+  coord_cartesian(xlim = c(min(pd$x - 0.1), max(pd$x + 0.1))) +
+  transition_reveal(time, keep_last = TRUE) +
+  enter_fade() +
+  ease_aes('cubic-in-out')
+```
+
+## {{tips["git"]}}
+```{r, messge = FALSE, warning =FALSE}
+options(gganimate.nframes = 400, 
+        gganimate.end_pause = 20)
+pd <- tibble(wf = c(0, -0.1, 0.1, 0.2, 0, -0.3, -0.3, -0.3, -0.2, 
+                    0, 0.1, 0.15, 0.25, 0.4, 0.6, 0.9), 
+             cry = c(0, 0.05, 0.01, 0.01, 0.1, 0.05, 0.2, 0.3, 0.5, 0.6, 
+                     0.3, 0.1, 0.01, 0.01, 0.01, 0.01),
+             time = seq(length(wf)), 
+             titles = c("I'm going to learn git!", 
+                        '"Git is just a directed graph"...wtf...', 
+                        "Just add, commit, push. Simple!",
+                        "Merge request, booyah!", 
+                        "Hrm, I messed something up.",
+                        "So it'll all be fixed with git reset --hard",
+                        "Uh Oh.", 
+                        "Oh No.", 
+                        "Where's all my stuff?", 
+                        "Took 3 hours, but I figured it out.", 
+                        "Add, commit, push.", 
+                        "Merge request!", 
+                        "Code review on github!",
+                        "Comment on merge request!",
+                        "Rollback nonworking version!", 
+                        "Out of the office, you can still get my code!")) %>%
+  gather(key = series, value = value, wf, cry) %>%
+  mutate(series = case_when(series == "wf" ~ "Work to\nbe easier", 
+                            series == "cry" ~ "Crying")) 
+
+pd %>%
   ggplot(aes(y = value, x = time, group = series)) +
   geom_point(size = 1.5) +
   geom_line() +
@@ -168,22 +204,103 @@ pd %>%
                linetype = 2, colour = 'grey') +
   geom_text(aes(x = max(pd$time) + 2, y = value, label = series), 
             family = text_fam) +
+  coord_cartesian(xlim = c(0, max(pd$time) + 3)) +
   theme(axis.ticks.x = element_blank(), 
         axis.text.x = element_blank()) +
   xlab("Time") +
-  ylab("Likelihood") +
+  ylab("Likelihood git causes") +
   ggtitle("{pd$titles[as.integer(frame_along)]}") +
-  transition_reveal(time) 
+  transition_reveal(time) +
+  enter_fade() +
+  ease_aes('cubic-in-out')
+```
+
+## {{tips["markdown"]}}
+colors
+```{r, message= FALSE, warning = FALSE}
+labs <- c("easy to share output + code", 
+          "natural interweaving of code and commentary", 
+          "compiles to useful formats (html, word, slides, etc)",
+          "custom templates in team's package",
+          "can write chunks in SQL, Python, Stan, ...", 
+          "will render pie charts") %>%
+  stringr::str_wrap(25)
+pd <- tibble(lab = factor(labs, labs, ordered = TRUE),
+             time = seq(length(labs)),
+             val = c(0.3, 0.22, 0.20, 0.15, 0.119, 0.01),
+             cv = cumsum(val), 
+             ypos = lag(cv, default = 0) + 0.5 * val) %>%
+  mutate(ypos = ifelse(ypos > 0.98, 0.05, ypos))
+
+pd <- lapply(seq(length(labs)), function(i) filter(pd, lab %in% labs[seq(i)]) %>%
+               mutate(disp = i)) %>%
+  bind_rows() 
+
+pd <- bind_rows(pd, bind_rows(lapply(seq(5), function(i) filter(pd, disp == max(disp)) %>%
+                                       mutate(disp = max(disp) + i, 
+                                              lab = ""))))
+pd %>%
+  ggplot(aes(x = 1, group = disp)) +
+  geom_bar(aes(fill = lab, y = val), stat = "identity", position = "stack") +
+  geom_text(aes(x = 1.7, y = ypos, label = lab), family = text_fam) +
+  coord_polar("y", start = 0) +
+  guides(fill = FALSE) +
+  ggthemes::scale_fill_solarized() +
+  theme_rs() +
+  theme(axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.title = element_blank()) +
+  labs(caption = "I swear I've never made a pie chart in ggplot2 before and had to look up how.") +
+  ggtitle("Reasons I Love RMarkdown") + 
+  transition_reveal(disp) +
+  enter_fade() +
+  ease_aes('cubic-in-out')
 ```
 
 ## {{tips["invisible"]}}
+```{r}
+labs <- c("replacements for data processing in Excel", 
+          "dashboard", 
+          '"Business Intelligence"',
+          "run stata estimator from R", 
+          "port stata estimator into R",
+          "linear regression",
+          "anything that uses TensorFlow") %>%
+  stringr::str_wrap(20)
 
-Usefulness of Projects in First Year
+norm <- function(x) (x - min(x)) / max(x)
 
-replacements for data processing pipeline
-crazy package that uses R to run command in another language
+pd <- crossing(use = seq(0, 1, 0.05), 
+               vis = seq(0, 1, 0.05)) %>%
+  mutate(fill = norm(1 - ((vis * use) ^ 2 + use - vis)))
+pd2 <- tibble(use = c(0.8, 0.8, 0.8, 0.6, 0.4, 0.5, 0.1), 
+              vis = c(0.1, 0.8, 0.45, 0.2, 0.05, 0.5, 0.95), 
+              lab = labs, 
+              time = seq(length(labs))) 
 
-Anything that uses tensorflow
+pd %>%
+  ggplot(aes(x = use, y = vis)) +
+  geom_raster(aes(fill = fill)) +
+  geom_label(data = pd2, aes(label = lab, group = time), family = text_fam) +
+  scale_fill_gradient2(low = "green", mid = "grey", high = "red", 
+                       labels = scales::percent, midpoint = 0.5) +
+  theme_rs() +
+  xlab("Useful") +
+  ylab("Sexy") +
+  theme(legend.position = "bottom", 
+        axis.title = element_blank(), 
+        axis.text = element_blank(), 
+        axis.ticks = element_blank()) +
+  labs(fill = "Pr(Told to Quit R)") +
+  ggtitle("Projects in First Year of R Adoption") +
+  transition_reveal(time) +
+  enter_fade() +
+  ease_aes('cubic-in-out')
+```
+
+
+
+
 
 
 

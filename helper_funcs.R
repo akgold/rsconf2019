@@ -3,7 +3,7 @@ bar_plot <- function(df, ylab) {
   df %>%
     ggplot(aes(x = x, y = dat, group = x)) +
     geom_bar(stat = "identity") +
-    geom_label(aes(label = lab, y = 0.5), family = text_fam) +
+    geom_label(aes(label = lab, y = laby), family = text_fam, alpha = 0.8) +
     scale_y_continuous(labels = scales::percent) +
     ylab(ylab) +
     theme_rs() +
@@ -17,14 +17,14 @@ theme_rs <- function() {
     theme(text = element_text(family = text_fam))
 }
 
-make_bar_dat <- function(y, labs) {
+make_bar_dat <- function(y, labs, laby = 0.5, wrap = 20) {
+  labs <- stringr::str_wrap(labs, wrap)
+
   tibble(x = seq(length(y)),
          dat = y,
-         lab = labs  %>%
-           stringr::str_wrap(20))
+         lab = factor(labs, levels = labs, ordered = TRUE),
+         laby = !!laby)
 }
-
-text_fam <- "Cabin-Regular"
 
 extend_end_state <- function(df, n = 5, dur_var = dur, ...) {
   df %>%
@@ -33,14 +33,5 @@ extend_end_state <- function(df, n = 5, dur_var = dur, ...) {
     mutate(time = row_number())
 }
 
-# ggplot(mtcars, aes(factor(cyl), mpg)) +
-#   geom_boxplot() +
-#   # Here comes the gganimate code
-#   transition_states(
-#     gear,
-#     transition_length = 2,
-#     state_length = 1
-#   ) +
-#   enter_fade() +
-#   exit_shrink() +
-#   ease_aes('sine-in-out')
+text_fam <- "Cabin-Regular"
+colors <- c()
